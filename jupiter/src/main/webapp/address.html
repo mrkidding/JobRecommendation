@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Place Searches</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map,#pano{
+        float: left;
+        height: 80%;
+        width: 40%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+    <script>
+      // This example requires the Places library. Include the libraries=places
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+	  var address1 = window.location.href.split("?")[1].split("=")[1];
+	  var address0=address1.replace('%20',' ');
+	  var address=address0.split('%20')[0].split('or')[0].split('&')[0];
+      var map;
+      var service;
+      var infowindow;
+
+      function initMap() {
+        var NewYork = new google.maps.LatLng(40.6, -74);
+		
+        infowindow = new google.maps.InfoWindow();
+
+        map = new google.maps.Map(
+            document.getElementById('map'), {center: NewYork, zoom: 15});
+        var panorama = new google.maps.StreetViewPanorama(
+            document.getElementById('pano'), {
+                position: NewYork,
+                pov: {
+                    heading: 34,
+                    pitch: 10
+                },
+			});
+        var request = {
+          query: address,
+          fields: ['name', 'geometry'],
+        };
+
+        service = new google.maps.places.PlacesService(map);
+
+        service.findPlaceFromQuery(request, function(results, status) {
+          if (status === google.maps.places.PlacesServiceStatus.OK) {
+            for (var i = 0; i < results.length; i++) {
+              createMarker(results[i]);
+            }
+            map.setCenter(results[0].geometry.location);
+			panorama.setPosition(results[0].geometry.location);
+			}
+        });
+      }
+      function createMarker(place) {
+        var marker = new google.maps.Marker({
+          map: map,
+          position: place.geometry.location
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent(place.name);
+          infowindow.open(map, this);
+        });
+      }
+    </script>
+  </head>
+  <body>
+	<h3>The map of the company</h3>
+    <div id="map"></div>
+    <div id="pano"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7iIbG7XE8jwrsbYrxue8LzjoX918lh5g&libraries=places&callback=initMap" async defer></script>
+  </body>
+</html>
